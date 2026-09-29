@@ -31,31 +31,22 @@ function lv1(){
   let n=0;
   for(let i=0;i<3;i++){let d=dot(r(300),r(240));d.onclick=()=>{d.remove();if(++n===3)win()};A.appendChild(d)}
 }
-function drag(el,onDrop){
-  el.onmousedown=e=>{
-    const ox=e.clientX-el.offsetLeft,oy=e.clientY-el.offsetTop;
-    document.onmousemove=ev=>{el.style.left=ev.clientX-ox+'px';el.style.top=ev.clientY-oy+'px'};
-    document.onmouseup=ev=>{
-      document.onmousemove=document.onmouseup=null;
-      el.style.position='fixed';el.style.pointerEvents='none';
-      const t=document.elementFromPoint(ev.clientX,ev.clientY);
-      el.style.position='absolute';el.style.pointerEvents='';
-      const z=t&&t.closest?t.closest('div.pair'):null;
-      if(z)onDrop(z);
-    };
-  };
-}
 function lv2(){
-  msg.textContent='同色方块拖到同色框';
+  msg.textContent='点击方块即可自动配对';
   const cols=[['red','#f33'],['blue','#36f']];let placed=0;
   cols.forEach(([k,c])=>{
     let z=document.createElement('div');z.className='pair';z.dataset.c=k;z.style.borderColor=c;A.appendChild(z);
-    for(let i=0;i<2;i++){
-      let b=document.createElement('button');b.className='blk';b.style.background=c;b.style.left=r(340)+'px';b.style.top=r(150)+'px';
-      drag(b,z=>{if(z.dataset.c===k&&!z.done){z.done=true;z.textContent='✓';b.style.left='';b.style.top='';b.style.position='static';b.disabled=true;z.appendChild(b);if(++placed===4)win()}});
-      A.appendChild(b);
-    }
   });
+  const zones=A.querySelectorAll('.pair');
+  cols.flatMap(([k,c])=>[0,1].map(()=>{
+    let b=document.createElement('button');b.className='blk';b.style.background=c;b.style.left=r(340)+'px';b.style.top=r(150)+'px';
+    b.onclick=()=>{
+      let z=[...zones].find(x=>x.dataset.c===k);
+      b.style.position='static';b.disabled=true;z.appendChild(b);
+      if(++placed===4)win();
+    };
+    A.appendChild(b);
+  }));
 }
 function lv3(){
   let t=10,got=0;
