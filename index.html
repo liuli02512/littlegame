@@ -1,33 +1,70 @@
-<!doctype html>
-<html lang="zh-CN">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="扣子编程，你的 AI 开发伙伴已就位" />
-    <title>扣子编程 - AI 开发伙伴</title>
-    <link rel="stylesheet" href="/styles/main.css" />
-  </head>
-  <body>
-    <div id="app">
-      <main class="main-wrapper">
-        <div class="content-container">
-          <img
-            src="https://lf-coze-web-cdn.coze.cn/obj/eden-cn/lm-lgvj/ljhwZthlaukjlkulzlp/coze-coding/icon/coze-coding.gif"
-            alt="扣子编程 Logo"
-            class="logo-image"
-          />
-          <div>
-            <div class="text-container">
-              <h1 class="heading">
-                应用开发中
-              </h1>
-              <p class="description">
-                请稍后，页面即将呈现
-              </p>
-            </div>
-          </div>
-        </div>
-      </main>
-    </div>
-  </body>
-</html>
+<!doctype html><html lang=zh><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>三关小游戏</title>
+<style>
+body{font-family:sans-serif;text-align:center;margin:16px}
+#a{position:relative;width:90vw;max-width:440px;height:300px;border:1px solid #ccc;margin:10px auto;overflow:hidden;background:#fafafa}
+.dot{position:absolute;width:32px;height:32px;border-radius:50%;background:red;border:none;cursor:pointer}
+.blk{position:absolute;width:38px;height:38px;border:none;cursor:pointer}
+.pair{display:inline-block;width:78px;height:78px;border:2px dashed #999;margin:10px 14px;vertical-align:top;line-height:78px;font-size:26px;color:#fff}
+button{font-size:15px;margin:6px;padding:6px 14px}
+</style>
+<body>
+<h1 id=lv>三关小游戏</h1><p id=msg>&nbsp;</p><div id=a></div>
+<button onclick=start()>开始游戏</button>
+<button onclick=restart()>重玩当前关</button>
+<button onclick=next()>进入下一关</button>
+<script>
+let lv=1,over=false;
+const A=document.getElementById('a'),msg=document.getElementById('msg'),lvEl=document.getElementById('lv');
+const r=(m)=>Math.floor(Math.random()*m);
+function cls(){A.innerHTML='';msg.textContent='';over=false}
+function load(){
+  cls();lvEl.textContent='第'+lv+'关';
+  lv===1?lv1():lv===2?lv2():lv3();
+}
+function start(){lv=1;load()}
+function next(){if(lv<3&&over){lv++;load()}}
+function restart(){lv<=3?load():0}
+function win(){over=true;msg.textContent='通关！点击“进入下一关”或重玩'}
+function dot(x,y){let d=document.createElement('button');d.className='dot';d.style.left=x+'px';d.style.top=y+'px';return d}
+function lv1(){
+  msg.textContent='点击红点全部消除';
+  let n=0;
+  for(let i=0;i<3;i++){let d=dot(r(300),r(240));d.onclick=()=>{d.remove();if(++n===3)win()};A.appendChild(d)}
+}
+function drag(el,onDrop){
+  el.onmousedown=e=>{
+    const ox=e.clientX-el.offsetLeft,oy=e.clientY-el.offsetTop;
+    document.onmousemove=ev=>{el.style.left=ev.clientX-ox+'px';el.style.top=ev.clientY-oy+'px'};
+    document.onmouseup=ev=>{
+      document.onmousemove=document.onmouseup=null;
+      el.style.position='fixed';const t=document.elementFromPoint(ev.clientX,ev.clientY);el.style.position='absolute';
+      if(t&&t.classList.contains('pair'))onDrop(t);
+    };
+  };
+}
+function lv2(){
+  msg.textContent='同色方块拖到同色框';
+  const cols=[['red','#f33'],['blue','#36f']];let placed=0;
+  cols.forEach(([k,c])=>{
+    let z=document.createElement('div');z.className='pair';z.dataset.c=k;z.style.borderColor=c;A.appendChild(z);
+    for(let i=0;i<2;i++){
+      let b=document.createElement('button');b.className='blk';b.style.background=c;b.style.left=r(340)+'px';b.style.top=r(150)+'px';
+      drag(b,z=>{if(z.dataset.c===k&&!z.done){z.done=true;z.textContent='✓';b.style.left='';b.style.top='';b.style.position='static';b.disabled=true;z.appendChild(b);if(++placed===4)win()}});
+      A.appendChild(b);
+    }
+  });
+}
+function lv3(){
+  let t=10,got=0;
+  msg.textContent=t+'秒内点满5个';
+  const ti=setInterval(()=>{if(over)return clearInterval(ti);msg.textContent=(--t)+'秒内点满5个('+got+')';if(t<=0){msg.textContent='超时，点重玩';over=true;clearInterval(ti)}},1000);
+  const spawn=()=>{
+    let b=dot(r(340),r(150));b.style.background='#d80';b.style.width='24px';b.style.height='24px';
+    b.onclick=()=>{b.remove();if(++got>=5){clearInterval(ti);win()}};
+    A.appendChild(b);
+    if(!over)setTimeout(()=>{if(A.childElementCount>6)A.firstChild.remove();spawn()},650);
+  };
+  spawn();
+}
+</script>
+</body></html>
