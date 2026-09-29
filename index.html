@@ -37,8 +37,11 @@ function drag(el,onDrop){
     document.onmousemove=ev=>{el.style.left=ev.clientX-ox+'px';el.style.top=ev.clientY-oy+'px'};
     document.onmouseup=ev=>{
       document.onmousemove=document.onmouseup=null;
-      el.style.position='fixed';const t=document.elementFromPoint(ev.clientX,ev.clientY);el.style.position='absolute';
-      if(t&&t.classList.contains('pair'))onDrop(t);
+      el.style.position='fixed';el.style.pointerEvents='none';
+      const t=document.elementFromPoint(ev.clientX,ev.clientY);
+      el.style.position='absolute';el.style.pointerEvents='';
+      const z=t&&t.closest?t.closest('div.pair'):null;
+      if(z)onDrop(z);
     };
   };
 }
